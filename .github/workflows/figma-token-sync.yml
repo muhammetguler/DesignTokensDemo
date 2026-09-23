@@ -1,0 +1,65 @@
+name: Figma Token Sync
+
+# Figma plugin'i api.github.com/repos/<owner>/<repo>/dispatches adresine
+# event_type "figma-tokens" ile POST attığında çalışır.
+on:
+  repository_dispatch:
+    types: [figma-tokens]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest   # codegen macOS istemiyor; build zaten PR'da koşacak
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: tokens.json yaz
+        env:
+          TOKENS: ${{ toJSON(github.event.client_payload.tokens) }}
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib
+          data = json.loads(os.environ["TOKENS"])
+          if "colors" not in data or "modes" not in data:
+              raise SystemExit("Beklenen şema yok: modes + colors")
+          out = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+          pathlib.Path("Tools/tokens.json").write_text(out, encoding="utf-8")
+          print(f"{len(data['colors'])} renk, {len(data['modes'])} mod yazıldı")
+          PY
+
+      - name: Codegen
+        run: python3 Tools/codegen.py
+
+      - name: Değişiklik var mı?
+        id: diff
+        run: |
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Figma'dan gelen değerler mevcut durumla aynı, PR açılmayacak."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat
+          fi
+
+      - name: PR aç
+        if: steps.diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: tokens/figma-sync
+          base: main
+          commit-message: "chore(tokens): Figma'dan senkronize edildi"
+          title: "Design token güncellemesi${{ github.event.client_payload.note && format(' — {0}', github.event.client_payload.note) || '' }}"
+          body: |
+            Bu PR Figma'daki Token Publish plugin'i tarafından tetiklendi.
+
+            - `Tools/tokens.json` Figma'daki güncel değerlerle değiştirildi
+            - `DesignTokensDemo/Generated/` codegen ile yeniden üretildi
+
+            Not: ${{ github.event.client_payload.note || '—' }}
+
+            Merge etmeden önce Design Tokens iş akışının yeşil olduğunu kontrol edin.
+          labels: design-tokens
+          delete-branch: true
