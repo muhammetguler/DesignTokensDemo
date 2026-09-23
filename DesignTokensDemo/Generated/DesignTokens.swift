@@ -42,11 +42,11 @@ public enum DesignTokens {
         Token(name: "border/default", key: "borderDefault", lightHex: "#EBEBEB", darkHex: "#262626"),
         Token(name: "status/success", key: "statusSuccess", lightHex: "#1A9E4B", darkHex: "#3DBE6A"),
         Token(name: "surface/overlay", key: "surfaceOverlay", lightHex: "#00000080", darkHex: "#00000080"),
-        Token(name: "surface/primary", key: "surfacePrimary", lightHex: "#FFFFFF", darkHex: "#1A1A1A"),
+        Token(name: "surface/primary", key: "surfacePrimary", lightHex: "#FFFF00", darkHex: "#1A1A1A"),
         Token(name: "surface/secondary", key: "surfaceSecondary", lightHex: "#F5F5F5", darkHex: "#262626"),
         Token(name: "text/on-accent", key: "textOnAccent", lightHex: "#1A1A1A", darkHex: "#1A1A1A"),
-        Token(name: "text/on-badge", key: "textOnBadge", lightHex: "#FFFFFF", darkHex: "#FFFFFF"),
-        Token(name: "text/primary", key: "textPrimary", lightHex: "#1A1A1A", darkHex: "#FFFFFF"),
+        Token(name: "text/on-badge", key: "textOnBadge", lightHex: "#FFFF00", darkHex: "#FFFF00"),
+        Token(name: "text/primary", key: "textPrimary", lightHex: "#1A1A1A", darkHex: "#FFFF00"),
         Token(name: "text/secondary", key: "textSecondary", lightHex: "#737373", darkHex: "#EBEBEB"),
     ]
 }
