@@ -1,0 +1,62 @@
+name: Design Tokens
+
+on:
+  push:
+    paths:
+      - "Tools/tokens.json"
+      - "Tools/codegen.py"
+  pull_request:
+    paths:
+      - "Tools/tokens.json"
+      - "Tools/codegen.py"
+      - "DesignTokensDemo/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  tokens:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref_name }}
+
+      - name: Codegen çalıştır
+        run: python3 Tools/codegen.py
+
+      - name: Değişiklik var mı?
+        id: diff
+        run: |
+          if git diff --quiet -- DesignTokensDemo/Generated; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git diff --stat -- DesignTokensDemo/Generated
+          fi
+
+      # Üretilen dosyalar commit'lenir, çünkü kimse codegen'i lokalde
+      # çalıştırmak zorunda kalmasın. İnsan onayı PR review'da verilir.
+      - name: Üretilen dosyaları commit'le
+        if: steps.diff.outputs.changed == 'true' && github.event_name != 'pull_request'
+        run: |
+          git config user.name  "design-tokens-bot"
+          git config user.email "design-tokens-bot@users.noreply.github.com"
+          git add DesignTokensDemo/Generated
+          git commit -m "chore(tokens): codegen çıktısını güncelle"
+          git push
+
+      # PR'da commit'lemek yerine uyarır: üretilen dosyalar güncel değilse kırılır.
+      - name: PR'da güncellik kontrolü
+        if: github.event_name == 'pull_request'
+        run: python3 Tools/codegen.py --check
+
+      - name: Derle
+        run: |
+          xcodebuild build \
+            -project DesignTokensDemo.xcodeproj \
+            -scheme DesignTokensDemo \
+            -destination 'platform=iOS Simulator,name=iPhone 16' \
+            CODE_SIGNING_ALLOWED=NO \
+            | xcpretty || exit ${PIPESTATUS[0]}

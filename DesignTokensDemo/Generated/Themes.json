@@ -1,0 +1,13 @@
+[
+  {
+    "id": "30-agustos",
+    "name": "30 Ağustos",
+    "overrides": {
+      "accentBrand": "#E30A17",
+      "badgeSoldout": "#262626",
+      "borderDefault": "#FFF5F5",
+      "surfaceSecondary": "#FFF5F5",
+      "textOnAccent": "#FFFFFF"
+    }
+  }
+]
