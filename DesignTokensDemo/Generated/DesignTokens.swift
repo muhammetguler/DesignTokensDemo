@@ -37,7 +37,7 @@ public enum DesignTokens {
     public static let textSecondary = Color("textSecondary", bundle: .main)
 
     public static let all: [Token] = [
-        Token(name: "accent/brand", key: "accentBrand", lightHex: "#FFD200", darkHex: "#FFD200"),
+        Token(name: "accent/brand", key: "accentBrand", lightHex: "#FFCC00", darkHex: "#FFD200"),
         Token(name: "badge/soldout", key: "badgeSoldout", lightHex: "#E30A17", darkHex: "#FF4D57"),
         Token(name: "border/default", key: "borderDefault", lightHex: "#EBEBEB", darkHex: "#262626"),
         Token(name: "status/success", key: "statusSuccess", lightHex: "#1A9E4B", darkHex: "#3DBE6A"),
